@@ -46,6 +46,7 @@ function restart() {
       const restartMac = require('./restart-mac');
       restartMac('ShareMouse.app');
     }
+    log('重启完成!');
 }
 
 const args = process.argv.slice(2);
@@ -59,10 +60,15 @@ if (args.length > 0) {
 
 log(`Duration is set to ${duration} minutes.`);
 
+
+let initialRun = true;
 function jihua() {
-  restart();
+  if (initialRun) {
+    restart();
+    initialRun = false;
+  }
   let millisecondsUntilNext = getMillisecondsToNextHalfHourOrHour(duration);
-  log("距离下一个30分钟或整点还有多少毫秒：", millisecondsUntilNext);
+  log(`距离下一个${duration}分钟或整点还有`, Math.round(millisecondsUntilNext / 1000 / 60), "分钟");
   // restart();
   setTimeout(() => {
       restart();

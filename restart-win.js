@@ -1,6 +1,6 @@
-const log = require('./logger');
 const { existsSync } = require('fs');
 const path = require('path');
+const log = require('./logger');
 
 
 
