@@ -1,17 +1,19 @@
 #!/usr/bin/env node
-function getMillisecondsToNextHalfHourOrHour() {
+const log = require('./logger');
+
+function getMillisecondsToNextHalfHourOrHour(durationInMinutes = 30) {
     let now = new Date(); // 获取当前时间
     let minutes = now.getMinutes(); // 获取当前的分钟数
     let nextTime;
 
-    if (minutes < 30) {
+    if (minutes < durationInMinutes) {
         // 如果当前分钟小于30，则下一个时间点是当前小时的30分钟
         nextTime = new Date(
             now.getFullYear(),
             now.getMonth(),
             now.getDate(),
             now.getHours(),
-            30,
+            durationInMinutes,
             0,
             0
         );
@@ -45,12 +47,23 @@ function restart() {
     }
 }
 
+const args = process.argv.slice(2);
+let duration = 30;
+if (args.length > 0) {
+  const inputDuration = parseInt(args[0], 10);
+  if (!isNaN(inputDuration)) {
+    duration = inputDuration;
+  }
+}
+
+log(`Duration is set to ${duration} minutes.`);
+
 function jihua() {
-  let millisecondsUntilNext = getMillisecondsToNextHalfHourOrHour();
-  console.log("距离下一个30分钟或整点还有多少毫秒：", millisecondsUntilNext);
+  let millisecondsUntilNext = getMillisecondsToNextHalfHourOrHour(duration);
+  log("距离下一个30分钟或整点还有多少毫秒：", millisecondsUntilNext);
   // restart();
   setTimeout(() => {
-      console.log('重启');
+      log('重启');
       restart();
       jihua();
   }, millisecondsUntilNext);

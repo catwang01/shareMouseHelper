@@ -1,3 +1,4 @@
+const log = require('./logger');
 const { existsSync } = require('fs');
 const path = require('path');
 
@@ -43,7 +44,7 @@ function findProgramWin(programName) {
             return true;
         }
     });
-    console.log('parentPath', path.resolve(parentPath, programName));
+    log('parentPath', path.resolve(parentPath, programName));
     return parentPath ?path.resolve(parentPath, programName) : null;
 }
 /**
@@ -54,18 +55,18 @@ function findProgramWin(programName) {
 function startWin(programName) {
     const programPath = findProgramWin(programName);
     if (!programPath) {
-        console.log('未找到程序');
+        log('未找到程序');
         return;
     }
     return new Promise((resolve, reject) => {
         const exec = require('child_process').exec;
         const sh = `start "" "${programPath}"`;
-        console.log('sh',sh);
+        log('sh',sh);
         exec(sh,{
           windowsHide: true,
         } ,(err, stdout, stderr) => {
-            console.log('err',err);
-            console.log('stdout',stdout);
+            log('err', err);
+            log('stdout', stdout);
             if (err) {
                 reject(err);
             } else {
@@ -77,5 +78,3 @@ function startWin(programName) {
         }, 1000);
     });
 }
-
-
