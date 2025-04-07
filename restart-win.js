@@ -45,7 +45,7 @@ function findProgramWin(programName) {
         }
     });
     log('parentPath', path.resolve(parentPath, programName));
-    return parentPath ?path.resolve(parentPath, programName) : null;
+    return parentPath ? path.resolve(parentPath, programName) : null;
 }
 /**
  * 启动windows 程序
@@ -61,12 +61,16 @@ function startWin(programName) {
     return new Promise((resolve, reject) => {
         const exec = require('child_process').exec;
         const sh = `start "" "${programPath}"`;
-        log('sh',sh);
-        exec(sh,{
-          windowsHide: true,
-        } ,(err, stdout, stderr) => {
-            log('err', err);
-            log('stdout', stdout);
+        log('executing command:', 'sh', sh);
+        exec(sh, {
+            windowsHide: true,
+        }, (err, stdout, stderr) => {
+            if (err) {
+                log('err', err);
+            }
+            if (stderr) {
+                log('stdout', stdout);
+            }
             if (err) {
                 reject(err);
             } else {
