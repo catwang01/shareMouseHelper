@@ -7,7 +7,7 @@ const platformModule = require(`./restart-${platform}`);
 
 // 直接使用withRetry包装重启函数
 const checkAndRestart = withRetry(async (force = false) => {
-    const processName = platform === 'win' ? 'ShareMouse.exe' : 'ShareMouse';
+    const processName = 'ShareMouse';
     if (force) {
         log('重启ShareMouse...');
         await platformModule.restart(processName);

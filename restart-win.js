@@ -10,7 +10,7 @@ const execAsync = promisify(exec);
 
 async function isProcessRunning(programName) {
     try {
-        const { stdout } = await execAsync(`tasklist /FI "IMAGENAME eq ${programName}"`);
+        const { stdout } = await execAsync(`tasklist | findstr /i /c:"${programName}"`);
         return stdout.toLowerCase().includes(programName.toLowerCase());
     } catch (error) {
         return false;
@@ -18,8 +18,11 @@ async function isProcessRunning(programName) {
 }
 
 async function restart(programName) {
-    await killWin(programName.split('/').pop());
-    await sleep(1000)
+    if (await isProcessRunning(programName)) {
+        log('程序正在运行，先杀死进程...');
+        await killWin(programName.split('/').pop());
+        await sleep(1000)
+    }
     await startWin(programName);
 }
 
@@ -37,10 +40,14 @@ function sleep(ms) {
 function killWin(programName) {
     return new Promise((resolve, reject) => {
         const exec = require('child_process').exec;
-        exec(`taskkill /f /im ${programName}`, (err, stdout, stderr) => {
+        const taskkill = `taskkill /f /im ${programName}.exe`;
+        log('executing command:', 'taskkill', taskkill);
+        exec(taskkill, (err, stdout, stderr) => {
             if (err) {
+                log("结束进程时遇到错误", err);
                 resolve(true);
             } else {
+                log('结束进程成功', stdout);
                 resolve(stdout);
             }
         });
@@ -56,12 +63,15 @@ function findProgramWin(programName) {
         'E:/Program Files/',
         'E:/Program Files (x86)/',
     ].find((curpath) => {
-        if (existsSync(path.resolve(curpath, programName))) {
+        const programPath = path.resolve(curpath, programName, programName + '.exe');
+        if (existsSync(programPath)) {
             return true;
         }
+        return false;
     });
-    log('parentPath', path.resolve(parentPath, programName));
-    return parentPath ? path.resolve(parentPath, programName) : null;
+    const ret = parentPath ? path.resolve(parentPath, programName, programName + '.exe') : null;
+    log('parentPath', ret);
+    return ret;
 }
 /**
  * 启动windows 程序
