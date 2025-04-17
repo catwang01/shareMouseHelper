@@ -1,16 +1,32 @@
 const { existsSync } = require('fs');
 const path = require('path');
 const log = require('./logger');
+const { exec } = require('child_process');
+const { promisify } = require('util');
+const execAsync = promisify(exec);
 
 
 
-// let millisecondsUntilNext = getMillisecondsToNextHalfHourOrHour();
-// console.log("距离下一个30分钟或整点还有多少毫秒：", millisecondsUntilNext);
-module.exports = async function restart(programName) {
+
+async function isProcessRunning(programName) {
+    try {
+        const { stdout } = await execAsync(`tasklist /FI "IMAGENAME eq ${programName}"`);
+        return stdout.toLowerCase().includes(programName.toLowerCase());
+    } catch (error) {
+        return false;
+    }
+}
+
+async function restart(programName) {
     await killWin(programName.split('/').pop());
     await sleep(1000)
     await startWin(programName);
 }
+
+module.exports = {
+    restart,
+    isProcessRunning
+};
 
 function sleep(ms) {
     return new Promise((resolve) => {
