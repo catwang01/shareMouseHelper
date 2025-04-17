@@ -10,15 +10,19 @@ function formatTimeLeft(ms) {
     return `${minutes}分${seconds}秒`;
 }
 
-async function checkAndRestart() {
+async function checkAndRestart(force = false) {
     const processName = platform === 'win' ? 'ShareMouse.exe' : 'ShareMouse';
-    const isRunning = await platformModule.isProcessRunning(processName);
-    
-    if (!isRunning) {
-        log('进程未运行，正在重启...');
+    if (force) {
+        log('重启ShareMouse...');
         await platformModule.restart(processName);
     } else {
-        log('进程正在运行中...');
+        const isRunning = await platformModule.isProcessRunning(processName);
+        if (!isRunning) {
+            log('进程未运行，正在重启...');
+            await platformModule.restart(processName);
+        } else {
+            log('进程正在运行中...');
+        }
     }
 }
 
@@ -29,18 +33,17 @@ const FORCE_RESTART_INTERVAL = 30 * 60 * 1000; // 30分钟
 
 async function startMonitoring() {
     log('开始监控进程...');
-    let lastForceRestart = Date.now();
+    let lastForceRestart = null;
 
     while (true) {
         const now = Date.now();
-        const processName = platform === 'win' ? 'ShareMouse.exe' : 'ShareMouse';
         const timeUntilNextRestart = FORCE_RESTART_INTERVAL - (now - lastForceRestart);
         
         // 检查是否需要强制重启
-        if (now - lastForceRestart >= FORCE_RESTART_INTERVAL) {
-            log('执行定时重启...');
-            await platformModule.restart(processName);
+        if (lastForceRestart === null || now - lastForceRestart >= FORCE_RESTART_INTERVAL) {
+            await checkAndRestart(true);
             lastForceRestart = now;
+            log(`距离下次重启还有: ${formatTimeLeft(FORCE_RESTART_INTERVAL)}`);
         } else {
             // 检查进程是否在运行
             await checkAndRestart();

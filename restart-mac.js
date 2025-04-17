@@ -44,7 +44,7 @@ function killMac(programName) {
 function startMac(programName) {
     return new Promise((resolve, reject) => {
         const exec = require('child_process').exec;
-        exec(`open -a /Applications/${programName}`, (err, stdout, stderr) => {
+        exec(`open -a /Applications/${programName}.app`, (err, stdout, stderr) => {
             if (err) {
                 reject(err);
             } else {
