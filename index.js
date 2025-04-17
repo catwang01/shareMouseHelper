@@ -1,39 +1,11 @@
 #!/usr/bin/env node
 const log = require('./logger');
+const { withRetry, formatTimeLeft } = require('./utils');
 
 const platform = process.platform === 'win32' ? 'win' : 'mac';
 const platformModule = require(`./restart-${platform}`);
 
-// 重试函数，接受一个异步函数，最大重试次数和重试延迟函数
-function withRetry(fn, maxRetries = 3, delayFn = (retryCount) => retryCount * 1000) {
-    return async () => {
-        let retryCount = 0;
-
-        while (retryCount <= maxRetries) {
-            try {
-                const suffix = retryCount > 0 ? `(第${retryCount}次重试)` : '';
-                return await fn(suffix);
-            } catch (error) {
-                retryCount++;
-                if (retryCount > maxRetries) {
-                    log(`操作失败: ${error.message}，已达到最大重试次数`);
-                    throw error;
-                }
-
-                const delay = delayFn(retryCount);
-                log(`操作失败: ${error.message}，${delay / 1000}秒后重试...`);
-                await new Promise(resolve => setTimeout(resolve, delay));
-            }
-        }
-    }
-}
-
-function formatTimeLeft(ms) {
-    const minutes = Math.floor(ms / (60 * 1000));
-    const seconds = Math.floor((ms % (60 * 1000)) / 1000);
-    return `${minutes}分${seconds}秒`;
-}
-
+// 直接使用withRetry包装重启函数
 const checkAndRestart = withRetry(async (force = false) => {
     const processName = platform === 'win' ? 'ShareMouse.exe' : 'ShareMouse';
     if (force) {
@@ -62,7 +34,7 @@ async function startMonitoring() {
     while (true) {
         const now = Date.now();
         const timeUntilNextRestart = FORCE_RESTART_INTERVAL - (now - lastForceRestart);
-
+        
         // 检查是否需要强制重启
         if (lastForceRestart === null || now - lastForceRestart >= FORCE_RESTART_INTERVAL) {
             await checkAndRestart(true);
