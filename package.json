@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/paul-leo/shareMouseHelper/issues"
   },
-  "homepage": "https://github.com/paul-leo/shareMouseHelper#readme"
+  "homepage": "https://github.com/paul-leo/shareMouseHelper#readme",
+  "dependencies": {
+    "node-notifier": "^10.0.1"
+  }
 }

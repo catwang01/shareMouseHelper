@@ -1,0 +1,34 @@
+# Node
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.*
+
+# VSCode
+.vscode/
+
+# Mac系统文件
+.AppleDouble
+.LSOverride
+Icon?
+
+# 其他临时文件
+*.swp
+*.swo
+*.tmp
+
+# 输出目录
+/dist/
+/build/ 

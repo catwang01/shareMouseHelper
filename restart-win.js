@@ -24,6 +24,17 @@ async function restart(programName) {
         await sleep(1000)
     }
     await startWin(programName);
+    // 添加系统通知
+    try {
+        const notifier = require('node-notifier');
+        notifier.notify({
+            title: 'ShareMouse 已重启',
+            message: `${programName} 已成功重启`,
+            sound: true
+        });
+    } catch (e) {
+        // 忽略通知异常
+    }
 }
 
 module.exports = {
